@@ -19,7 +19,7 @@ Img::Img(int rows, int cols)
 }
 
 /* 读入真实图像：灰度图 */
-Img::Img(std::string &path)
+Img::Img(const char *path)
 {
     cv::Mat img_mat = cv::imread(path, cv::IMREAD_GRAYSCALE);
     this->rows = img_mat.rows;
@@ -85,7 +85,7 @@ cv::Mat Img::toMat() const
 }
 
 /* 展示图片 */
-void Img::show(std::string &name, int delay) const
+void Img::show(const char *name, int delay) const
 {
     cv::imshow(name, this->toMat());
     cv::waitKey(delay);

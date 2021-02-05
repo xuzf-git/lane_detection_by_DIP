@@ -4,19 +4,33 @@
 
 #ifndef LANE_DETECTION_KERNEL_H
 #define LANE_DETECTION_KERNEL_H
+
 #include "Img.h"
+
 class Kernel
 {
 public:
     double **data;
     int size;
-    double sigma;
+
     Kernel(int size);   // 空的卷积核
-    Kernel(const int size, const double sigma); // 高斯kernel
-    Kernel(Kernel& cp);
+    Kernel(Kernel &cp); // 拷贝构造函数
     ~Kernel();
-    double *operator[](const int idx);
-    void convolve(const Img &src, Img &dst);
+
+    double *operator[](const int idx) const;
+    void convolve(const Img &src, Img &dst) const;
 
 };
+
+class GaussianKernel : public Kernel
+{
+public:
+    double sigma;
+
+    GaussianKernel(const int size, const double sigma);
+    GaussianKernel(GaussianKernel &cp);
+};
+
+void Sobel(const Img &src, Img &dst);
+
 #endif //LANE_DETECTION_KERNEL_H

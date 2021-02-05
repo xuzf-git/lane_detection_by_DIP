@@ -2,24 +2,48 @@
 // Created by xuzf on 2021/2/5.
 //
 
+#ifndef LANE_DETECTION_IMG_HPP
+#define LANE_DETECTION_IMG_HPP
+
+#include <opencv2\opencv.hpp>
 #include <iostream>
-#include "../include/Img.h"
+#include <string>
+//typedef unsigned char uchar;
+
+template<typename T>
+class Img
+{
+public:
+    T **data;   // 存放数据
+    int rows; // 图像的行数
+    int cols; // 图像的列数
+
+    Img(int rows, int cols); /* 构造空值图像 */
+    Img(const char *path);   /* 读入图像：灰度图 */
+    Img(Img &cp);            /* Img类的复制构造函数 */
+    ~Img();
+
+    T *operator[](const int idx) const;
+
+    cv::Mat toMat() const;                        /* 将图像转换成 cv::Mat */
+    void show(const char *name, int delay) const; /* 展示图片 */
+};
 
 /* 构造空值图像 */
-Img::Img(int rows, int cols)
+template<typename T>
+Img<T>::Img(int rows, int cols) : rows(rows), cols(cols)
 {
-    this->rows = rows;
-    this->cols = cols;
-    data = new uchar *[rows];
+    data = new T *[rows];
     for (int i = 0; i < rows; ++i)
     {
-        data[i] = new uchar[cols];
+        data[i] = new T[cols];
         std::memset(data[i], 0, sizeof(uchar) * cols);
     }
 }
 
 /* 读入真实图像：灰度图 */
-Img::Img(const char *path)
+template<typename T>
+Img<T>::Img(const char *path) : rows(0), cols(0)
 {
     cv::Mat img_mat = cv::imread(path, cv::IMREAD_GRAYSCALE);
     this->rows = img_mat.rows;
@@ -38,14 +62,13 @@ Img::Img(const char *path)
 }
 
 /* 复制构造函数 */
-Img::Img(Img &cp)
+template<typename T>
+Img<T>::Img(Img &cp) : rows(cp.rows), cols(cp.cols)
 {
-    this->rows = cp.rows;
-    this->cols = cp.cols;
-    data = new uchar *[this->rows];
+    data = new T *[this->rows];
     for (int i = 0; i < this->rows; i++)
     {
-        data[i] = new uchar[this->cols];
+        data[i] = new T[this->cols];
         for (int j = 0; j < this->cols; j++)
         {
             data[i][j] = cp[i][j];
@@ -54,7 +77,8 @@ Img::Img(Img &cp)
 }
 
 /* 析构函数 */
-Img::~Img()
+template<typename T>
+Img<T>::~Img()
 {
     for (int i = 0; i < rows; ++i)
     {
@@ -63,13 +87,15 @@ Img::~Img()
 }
 
 /* 访问图像的指定行 */
-uchar *Img::operator[](const int idx) const
+template<typename T>
+T *Img<T>::operator[](const int idx) const
 {
     return data[idx];
 }
 
 /* 将图像转换成 cv::Mat */
-cv::Mat Img::toMat() const
+template<typename T>
+cv::Mat Img<T>::toMat() const
 {
     cv::Mat img_mat = cv::Mat::zeros(rows, cols, CV_8UC1);
     for (int i = 0; i < rows; ++i)
@@ -85,8 +111,11 @@ cv::Mat Img::toMat() const
 }
 
 /* 展示图片 */
-void Img::show(const char *name, int delay) const
+template<typename T>
+void Img<T>::show(const char *name, int delay) const
 {
     cv::imshow(name, this->toMat());
     cv::waitKey(delay);
 }
+
+#endif //LANE_DETECTION_IMG_HPP

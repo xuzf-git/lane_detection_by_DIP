@@ -8,6 +8,6 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 set(OpenCV_LIBS opencv_core opencv_imgproc opencv_highgui opencv_imgcodecs)
 
-add_executable(lane_detection main.cpp source/Img.cpp include/Img.h include/Kernel.h source/Kernel.cpp)
+add_executable(lane_detection main.cpp include/Img.hpp include/Kernel.h source/Kernel.cpp include/Canny.h source/Canny.cpp)
 
 target_link_libraries(lane_detection ${OpenCV_LIBS})

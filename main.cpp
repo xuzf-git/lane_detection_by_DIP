@@ -8,19 +8,24 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-    string path = "../data/20.jpg";
-    Img<uchar> data(path.data());
-    // cout << data.rows << ' ' << data.cols << endl;
+    string path = "../data/lena.jpg";
+    Img<uchar> src(path.data());
+    Img<uchar> dst(src.rows, src.cols);
+    Img<double> theta(src.rows, src.cols);
+
     // 原图
-    // data.show("OriginImg", 1000);
+    src.show("OriginImg", 1000);
     // 高斯滤波
-    Img<uchar> smooth_dst(data.rows, data.cols);
     GaussianKernel filter(3, 1);
-    filter.convolve(data, smooth_dst);
-    // smooth_dst.show("GaussianRes", 1000);
-    // Sobel 算子
-    Img<uchar> sobel_img(data.rows, data.cols);
-    Img<int> theta(data.rows, data.cols);
-    Sobel(smooth_dst, sobel_img, theta);
+    filter.convolve(src, dst, true);
+    // Canny 边缘检测
+    Canny(dst, 0.9);
+    dst.show("edge detection", 0);
+    // opencv
+    // cv::Mat cv_img = cv::imread("../data/20.jpg", cv::IMREAD_GRAYSCALE);
+    // cv::Mat cv_dst;
+    // cv::Canny(cv_img, cv_dst, 150, 100);
+    // cv::imshow("opencv", cv_dst);
+    // cv::waitKey(0);
     return 0;
 }

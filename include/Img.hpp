@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 //typedef unsigned char uchar;
+const double PI = acos(-1.0); // 圆周率
 
 template<typename T>
 class Img
@@ -24,9 +25,11 @@ public:
     ~Img();
 
     T *operator[](const int idx) const;
+    Img &operator=(const Img &cp);
 
-    cv::Mat toMat() const;                        /* 将图像转换成 cv::Mat */
     void show(const char *name, int delay) const; /* 展示图片 */
+private:
+    cv::Mat toMat() const;                        /* 将图像转换成 cv::Mat */
 };
 
 /* 构造空值图像 */
@@ -91,6 +94,21 @@ template<typename T>
 T *Img<T>::operator[](const int idx) const
 {
     return data[idx];
+}
+
+template<typename T>
+Img<T> &Img<T>::operator=(const Img &cp)
+{
+    assert(this->rows == cp.rows);
+    assert(this->cols == cp.cols);
+    for (int i = 0; i < rows; ++i)
+    {
+        for (int j = 0; j < cols; ++j)
+        {
+            data[i][j] = cp[i][j];
+        }
+    }
+    return *this;
 }
 
 /* 将图像转换成 cv::Mat */

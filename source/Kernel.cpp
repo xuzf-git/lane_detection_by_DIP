@@ -52,51 +52,13 @@ double *Kernel::operator[](const int idx) const
     return data[idx];
 }
 
-/* 实现卷积操作 */
-void Kernel::convolve(const Img<uchar> &src, Img<uchar> &dst) const
-{
-    if (!src.data || src.rows != dst.rows || src.cols != dst.cols)
-        return;
-
-    int offset = size / 2;
-    double val;
-    int x, y;
-
-    for (int i = 0; i < dst.rows; ++i)
-    {
-        for (int j = 0; j < dst.cols; ++j)
-        {
-            /* 计算目标图像上每个像素点的值 */
-            val = 0;
-            for (int dx = -offset; dx <= offset; ++dx)
-            {
-                for (int dy = -offset; dy <= offset; ++dy)
-                {
-                    x = i + dx;
-                    y = j + dy;
-                    if (x >= 0 && x < dst.rows && y >= 0 && y <= dst.cols)
-                    {
-                        val += double(src[x][y]) * double(data[offset + dx][offset + dy]);
-                    }
-                }
-            }
-            val = val > 255 ? 255 : val;
-            val = val < 0 ? 0 : val;
-            dst[i][j] = uchar(round(val));
-        }
-    }
-}
-
 /*********************************************************
  * GaussianKernel 类定义
  ********************************************************/
 
 /* 高斯 Kernel 的构造函数 */
-GaussianKernel::GaussianKernel(const int size, const double sigma) : Kernel(size)
+GaussianKernel::GaussianKernel(const int size, const double sigma) : Kernel(size), sigma(sigma)
 {
-    this->sigma = sigma;
-
-    const double PI = 4.0 * atan(1.0); // 圆周率π赋值
     int center = size / 2;
     double sum = 0;
 

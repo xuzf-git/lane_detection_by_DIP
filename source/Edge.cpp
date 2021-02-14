@@ -2,9 +2,103 @@
 // Created by xuzf on 2021/2/6.
 //
 
-#include "../include/Canny.h"
+#include "../include/Edge.h"
 #include <vector>
 #include <algorithm>
+
+/* 阈值分割，得到二值图像 */
+void TurnBinary(Img<uchar> &src, double weight)
+{
+    std::vector<uchar> vec;
+    // 高阈值取灰度分布图中 weight 对应的灰度值
+    for (int i = 160; i < src.rows; ++i)
+    {
+        for (int j = 0; j < src.cols; ++j)
+        {
+            vec.push_back(src[i][j]);
+        }
+    }
+    std::sort(vec.begin(), vec.end());
+    int threshold = vec[(src.rows - 160)* src.cols * weight];
+    for (int i = 0; i < src.rows; ++i)
+    {
+        for (int j = 0; j < src.cols; ++j)
+        {
+            if (src[i][j] > threshold && i >= 160)
+                src[i][j] = 255;
+            else
+                src[i][j] = 0;
+        }
+    }
+}
+
+/* 形态学：膨胀运算 */
+void Dilation(const Img<uchar> &src, Img<uchar> &dst, int kernel_size)
+{
+    for (int i = kernel_size; i < src.rows - kernel_size; ++i)
+    {
+        for (int j = kernel_size; j < src.cols - kernel_size; ++j)
+        {
+            if (src[i][j] == 255)
+            {
+                for (int x = -kernel_size; x <= kernel_size; ++x)
+                {
+                    for (int y = -kernel_size; y <= kernel_size; ++y)
+                    {
+                        dst[i + x][j + y] = 255;
+                    }
+                }
+            }
+            else
+                dst[i][j] = 0;
+        }
+    }
+}
+
+/* 形态学: 腐蚀运算 */
+void Erosion(const Img<uchar> &src, Img<uchar> &dst, int kernel_size)
+{
+    bool is_kept;
+    for (int i = kernel_size; i < src.rows - kernel_size; ++i)
+    {
+        for (int j = kernel_size; j < src.cols - kernel_size; ++j)
+        {
+            is_kept = true;
+            for (int x = -kernel_size; x <= kernel_size; ++x)
+            {
+                if (!is_kept)
+                    break;
+                for (int y = -kernel_size; y <= kernel_size; ++y)
+                {
+                    if (src[i + x][j + y] != 255)
+                    {
+                        is_kept = false;
+                        break;
+                    }
+                }
+            }
+            dst[i][j] = is_kept ? 255 : 0;
+        }
+    }
+}
+
+/* 遮盖无效部分 */
+void RoiMask(Img<uchar> &src)
+{
+    // 梯形 ROI 区域进行 mask (400, 0) (220, 420) (200, 860), (400, 1280)
+    for (int i = 0; i < src.rows; ++i)
+    {
+        for (int j = 0; j < src.cols; ++j)
+        {
+            if (i <= 200)
+                src[i][j] = 0;
+            else if (i > 400)
+                continue;
+            else if (2.1 * (400 - i) > j || j > 1280 - 2.1 * (400 - i))
+                src[i][j] = 0;
+        }
+    }
+}
 
 /* Sobel 算子：计算图像梯度 */
 void Sobel(const Img<uchar> &src, Img<uchar> &dst, Img<double> &theta)
@@ -12,12 +106,16 @@ void Sobel(const Img<uchar> &src, Img<uchar> &dst, Img<double> &theta)
     assert(src.rows == dst.rows);
     assert(src.cols == dst.cols);
 
-    const double sobelX_arr[3][3] = {{-1, 0, 1},
-                                     {-2, 0, 2},
-                                     {-1, 0, 1}};
-    const double sobelY_arr[3][3] = {{1,  2,  1},
-                                     {0,  0,  0},
-                                     {-1, -2, -1}};
+    const double sobelX_arr[3][3] = {
+            {-1, 0, 1},
+            {-2, 0, 2},
+            {-1, 0, 1}
+    };
+    const double sobelY_arr[3][3] = {
+            {1,  2,  1},
+            {0,  0,  0},
+            {-1, -2, -1}
+    };
     Kernel sobelX(3);
     Kernel sobelY(3);
     for (int i = 0; i < 3; ++i)
@@ -51,7 +149,7 @@ void NonMaxSuppression(const Img<uchar> &src, Img<uchar> &dst, const Img<double>
     assert(src.cols == dst.cols);
 
     // 将 src 的值拷贝到 dst 中
-    dst =src;
+    dst = src;
 
     uchar local[3][3];
     uchar temp1, temp2;
@@ -106,7 +204,7 @@ void NonMaxSuppression(const Img<uchar> &src, Img<uchar> &dst, const Img<double>
 }
 
 /* 双阈值检测 & 连接边缘 */
-void DoubleThreshold(const Img<uchar> &image, const double weight)
+void DoubleThreshold(Img<uchar> &image, const double weight)
 {
     double highThreshold;
     double lowThreshold;
@@ -128,9 +226,9 @@ void DoubleThreshold(const Img<uchar> &image, const double weight)
     {
         for (int j = 1; j < image.cols - 1; ++j)
         {
-            if (image[i][j] < lowThreshold) // 检测高阈值
+            if (image[i][j] < lowThreshold) // 检测低阈值
                 image[i][j] = 0;
-            else if (image[i][j] > highThreshold) // 检测低阈值
+            else if (image[i][j] > highThreshold) // 检测高阈值
                 image[i][j] = 255;
             else // 介于双阈值之间，连接边缘
             {

@@ -44,6 +44,7 @@ Kernel::~Kernel()
     {
         delete[] data[i];
     }
+    delete[] data;
 }
 
 /* 访问指定行 */

@@ -8,6 +8,7 @@
 #include <opencv2\opencv.hpp>
 #include <iostream>
 #include <string>
+
 //typedef unsigned char uchar;
 const double PI = acos(-1.0); // 圆周率
 
@@ -16,8 +17,8 @@ class Img
 {
 public:
     T **data;   // 存放数据
-    int rows; // 图像的行数
-    int cols; // 图像的列数
+    int rows;   // 图像的行数
+    int cols;   // 图像的列数
 
     Img(int rows, int cols); /* 构造空值图像 */
     Img(const char *path);   /* 读入图像：灰度图 */
@@ -25,11 +26,11 @@ public:
     ~Img();
 
     T *operator[](const int idx) const;
+
     Img &operator=(const Img &cp);
 
-    void show(const char *name, int delay) const; /* 展示图片 */
-private:
     cv::Mat toMat() const;                        /* 将图像转换成 cv::Mat */
+    void show(const char *name, int delay) const; /* 展示图片 */
 };
 
 /* 构造空值图像 */
@@ -87,6 +88,7 @@ Img<T>::~Img()
     {
         delete[] data[i];
     }
+    delete[] data;
 }
 
 /* 访问图像的指定行 */
@@ -132,7 +134,11 @@ cv::Mat Img<T>::toMat() const
 template<typename T>
 void Img<T>::show(const char *name, int delay) const
 {
-    cv::imshow(name, this->toMat());
+    cv::Mat src = this->toMat();
+    cv::Mat temp;
+
+    cv::resize(src, temp, cv::Size(src.cols / 2.0, src.rows / 2.0), 0, 0, cv::INTER_LINEAR);
+    cv::imshow(name, temp);
     cv::waitKey(delay);
 }
 

@@ -374,3 +374,32 @@ int main()
 
 通过查阅相关资料，我了解到更多车道线检测的改进算法，例如可以通过最大类间方差法(OTSU)进行阈值分割、动态ROI区域等。可以通过以上算法进一步提高模型精度和性能。
 
+
+## 6、 运行方法
+1. **编译**（Windows 10）：
+    * cmake version 3.19.3
+    * GNU Make version 4.2.1
+    * OpenCV version 4.5.1
+
+    在 powershell 中执行以下命令：
+    （1）生成 debug 版本：
+    ```shell
+    mkdir debug # 创建编译目录
+    cd debug
+    cmake -G "MinGW Makefiles" ..   # 生成 Makefile
+    mingw32-make    # 使用 MinGW 编译代码
+    ```
+    （2）生成 release 版本
+    ```shell
+    mkdir release
+    cd release
+    cmake -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release ..  
+    mingw32-make
+    ```
+2. **运行**
+    > 在 debug / release 目录中双击 lane_detection.exe 即可运行
+3. **测评**
+    ```shell
+    cd ..
+    python evaluate.py ./result/predict.json ./data/groundtruth.json
+    ```

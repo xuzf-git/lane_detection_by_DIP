@@ -13,9 +13,7 @@
 
 模型的处理流程如下，
 
-
-
-<img src="./result/image%20of%20readme/img.png" alt="image-20210214120515919" style="zoom:80%;" />
+<img src="./result/image_of_readme/img.png" alt="image-20210214120515919" style="zoom:80%;" />
 
 ### 2.1 道路图像处理
 
@@ -64,11 +62,11 @@ public:
 
 在实验过程中，我曾尝试采用以下方法进行边缘提取的方法。由于在图像中车道线的灰度值较大，因此我设计了一种参数自适应的阈值分割算法，把车道线从图像中抽取出来。具体方法如下：统计图像的灰度分布，选取整体灰度分布相应比例对应的灰度值作为阈值，对图像进行二值化。效果如下：
 
-![阈值分割效果](./result/image of readme/binary.png)
+![阈值分割效果](./result/image_of_readme/binary.png)
 
 可以发现，通过阈值分割有效的过滤掉了大部分背景，如山脉、路面、车辆，这为下面的直线检测去除了一定的干扰。但是由于部分图像存在反光或较亮区域，这导致一些车道线丢失，或特征不再明显，如下图。
 
-![阈值分割导致车道线信息丢失](./result/image of readme/binary_failure.png)
+![阈值分割导致车道线信息丢失](./result/image_of_readme/binary_failure.png)
 
 虽然可以通过求图像梯度的方法将大面积的高亮度区域滤除，但是直接将原图转成二值图像处理，会丢失车道线的细节信息导致结果车道线信息不完整。因此舍弃该方案。
 
@@ -94,7 +92,7 @@ grad_y = \begin{bmatrix} 1 & 2 & 1 \\ 0 & 0 & 0 \\ -1 & -2 & -1 \end{bmatrix} \t
 $$
 Sobel 算子计算梯度效果如下：
 
-![Sobel计算图像梯度](./result/image of readme/Sobel.png)
+![Sobel计算图像梯度](./result/image_of_readme/Sobel.png)
 
 （2）非极大值抑制
 
@@ -102,7 +100,7 @@ Sobel 算子计算梯度效果如下：
 
 NMS实现的思路如下：计算每个中心像素点沿梯度方向邻域内各点的梯度值，如果该中心像素点的梯度值是以上像素点梯度值的局部极大值，则保留梯度，否则梯度置为零。由于邻域内在梯度方向上的点不一定是在整数坐标位置，因此需要通过插值计算邻域内梯度方向点的梯度值。实现效果如下：
 
-![非极大值抑制效果](./result/image of readme/nms.png)
+![非极大值抑制效果](./result/image_of_readme/nms.png)
 
 一些非边缘的噪点得到了一定程度的抑制，边缘也得到细化。
 
@@ -116,7 +114,7 @@ NMS实现的思路如下：计算每个中心像素点沿梯度方向邻域内�
 
 双阈值处理中，高阈值将物体边缘和背景区分开，但是当高阈值较大时，可能导致边缘断断续续；此时低阈值平滑边缘轮廓，能实现较好的分割效果。同时借鉴之前尝试对灰度图做阈值分割的思路，采用整体灰度分布相应比例处的灰度值为高阈值，低阈值取高阈值的 $\frac{2}{3}$，实现效果如下：
 
-![双阈值效果](./result/image of readme/canny.png)
+![双阈值效果](./result/image_of_readme/canny.png)
 
 Canny 边缘提取的实现接口如下：
 
@@ -153,11 +151,11 @@ void Canny(Img<uchar> &image, const double weight = 0.9);
 
 观察图像选取了(400, 0) (220, 420) (200, 860), (400, 1280)四个点作为 mask 的角点。mask图像如下
 
-![梯形 mask](./result/image of readme/mask.png)
+![梯形 mask](./result/image_of_readme/mask.png)
 
 ROI 如下：
 
-![梯形 ROI](./result/image of readme/roi.png)
+![梯形 ROI](./result/image_of_readme/roi.png)
 
 #### 2.2.2 hough 变换检测直线
 
@@ -173,7 +171,7 @@ hough变换中，直线采用极坐标方程表示，因为参数$\theta$ 和 $r
 
 hough 变换效果如下图：
 
-![hough变换效果](./result/image of readme/hough.png)
+![hough变换效果](./result/image_of_readme/hough.png)
 
 可以线由于车道线存在一定的弧度并非严格地直线，且存在一定宽度，导致每条车道线都会检测出多条对应直线。可以采用聚类的方法对检测出的直线进行聚类，以得到更精准的效果。
 
@@ -208,7 +206,7 @@ for param in params
 
 一开始选择的更新聚类中心的方法，是取同一类别的平均值，效果不佳。经过尝试最后采用取每个类别的初始值为中心点，实现较好的效果。示例如下：
 
-![聚类方法对比](./result/image of readme/update_cmp.png)
+![聚类方法对比](./result/image_of_readme/update_cmp.png)
 
 评测结果对比：
 
@@ -251,7 +249,7 @@ void polyLanes(const string &path, vector<vector<int>> &lanes, int delay);
 
 实现效果如下：
 
-![输出结果](./result/image of readme/result.png)
+![输出结果](./result/image_of_readme/result.png)
 
 ## 3、 实现说明
 

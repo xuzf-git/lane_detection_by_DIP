@@ -23,14 +23,10 @@
 
 由于光照、路面情况、拍摄质量等问题，道路图像上存在很多噪声，通过高斯滤波使图像变得平滑，减弱图像中的噪声对结果的影响，提高车道线检测模型的鲁棒性。
 
-高斯平滑就是使用高斯滤波器与原图像进行卷积，得到平滑图像。与均值滤波类似，它们都是取滤波器窗口内像素的加权均值作为输出。高斯滤波器的权值分布满足二维高斯函数。
-$$
-h(x,y) = e^{-\frac{x^2+y^2}{2\sigma^2}} \quad  (x,y) 为二维平面坐标系中点的坐标
-$$
-由于高斯平滑是线性离散滤波，因此离散形式的高斯滤波器为
-$$
-H_{i,j} = \frac{1}{2 \pi \sigma ^ 2}e ^{-\frac{(i - k - 1)^2 + (j - k - 1)^2}{2 \sigma ^ 2}} \quad 窗口的长宽均为 (2\times k + 1)
-$$
+高斯平滑就是使用高斯滤波器与原图像进行卷积，得到平滑图像。与均值滤波类似，它们都是取滤波器窗口内像素的加权均值作为输出。高斯滤波器的权值分布满足二维高斯函数。  
+![](https://latex.codecogs.com/gif.latex?h(x,y)=e^{-\frac{x^2&plus;y^2}{2\sigma^2}})  
+由于高斯平滑是线性离散滤波，因此离散形式的高斯滤波器为  
+![](https://latex.codecogs.com/gif.latex?H_{i,j}&space;=&space;\frac{1}{2&space;\pi&space;\sigma&space;^&space;2}e&space;^{-\frac{(i&space;-&space;k&space;-&space;1)^2&space;&plus;&space;(j&space;-&space;k&space;-&space;1)^2}{2&space;\sigma&space;^&space;2}})  
 本实验采用 $3\times3$ 的高斯滤波器。具体实现为定义 `Kernel` 类实现通用的卷积操作，定义派生类 `GaussianKernel` 实现不同 size 和 $\sigma$ 高斯滤波器的构建的运算，实现接口如下：
 
 ```c++
@@ -86,10 +82,9 @@ public:
 * 梯度方向：$gard_\theta = arctan(\frac{grad_y}{grad_x})$
 
 其中计算 $x,y$ 方向的梯度使用Sobel算子对图像进行卷积
-$$
-grad_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} \times img \quad
-grad_y = \begin{bmatrix} 1 & 2 & 1 \\ 0 & 0 & 0 \\ -1 & -2 & -1 \end{bmatrix} \times img
-$$
+
+<img src="https://latex.codecogs.com/png.latex?grad_x&space;=&space;\begin{bmatrix}&space;-1&space;&&space;0&space;&&space;1&space;\\&space;-2&space;&&space;0&space;&&space;2&space;\\&space;-1&space;&&space;0&space;&&space;1&space;\end{bmatrix}&space;\times&space;img&space;\quad&space;grad_y&space;=&space;\begin{bmatrix}&space;1&space;&&space;2&space;&&space;1&space;\\&space;0&space;&&space;0&space;&&space;0&space;\\&space;-1&space;&&space;-2&space;&&space;-1&space;\end{bmatrix}&space;\times&space;img" title="grad_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix} \times img \quad grad_y = \begin{bmatrix} 1 & 2 & 1 \\ 0 & 0 & 0 \\ -1 & -2 & -1 \end{bmatrix} \times img" />
+
 Sobel 算子计算梯度效果如下：
 
 ![Sobel计算图像梯度](./result/image_of_readme/Sobel.png)

@@ -82,8 +82,8 @@ public:
 
 灰度图可以看做灰度值 $h(x,y)$ 关于 $(x,y)$ 坐标的二元函数，计算图像梯度可以通过Sobel算子计算得到。​
 
-* $x$ 方向梯度： ${grad}_x(x,y) = \frac{\part h(x,y)}{\part x}$
-* $y$ 方向梯度： ${grad}_y(x,y) = \frac{\part h(x,y)}{\part x}$
+* $x$ 方向梯度： ${grad}_x(x,y) = \frac{\partial h(x,y)}{\partial x}$
+* $y$ 方向梯度： ${grad}_y(x,y) = \frac{\partial h(x,y)}{\partial x}$
 * 梯度幅度： $grad = \sqrt{{grad_x}^2 + {gard_y}^2}$
 * 梯度方向：$gard_\theta = arctan(\frac{grad_y}{grad_x})$
 
